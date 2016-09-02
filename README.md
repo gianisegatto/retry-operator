@@ -1,4 +1,4 @@
-This project provides a class RetryOperator to support retries in your application using RetyrTemplate and Java 8 Function.
+This project provides a class RetryOperator to support retries in your application using RetryTemplate and Java 8 Function.
 
 ## Building
 
