@@ -6,7 +6,6 @@ import org.springframework.retry.backoff.FixedBackOffPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -20,7 +19,7 @@ public class RetryOperator<RQ, RS> {
 
     public RetryOperator(final int maxAttempts, final int delay, final Class<? extends RuntimeException>... exceptions) {
 
-         this.retryTemplate = new RetryTemplate();
+        this.retryTemplate = new RetryTemplate();
 
         Map<Class<? extends Throwable>, Boolean> exceptionMap = Stream.of(exceptions)
                 .collect(Collectors.toMap(exception -> exception, exception -> true));
@@ -34,14 +33,12 @@ public class RetryOperator<RQ, RS> {
     }
 
     public RS executeAndRetryIfFail(final Function<RQ, RS> executeFunction, final RQ request) {
-
-        RS response = retryTemplate.execute(
+        return retryTemplate.execute(
                 context -> {
                     LOGGER.info(String.format("Executing attempt %d", context.getRetryCount() + 1));
                     return executeFunction.apply(request);
                 }
         );
-        return response;
     }
 
     public RS executeAndRetryIfFail(final Function<RQ, RS> executeFunction, final RQ request, final Class<? extends RuntimeException> throwableClass, final String... retryMessages) {
@@ -66,8 +63,7 @@ public class RetryOperator<RQ, RS> {
     }
 
     public RS executeAndRetryIfFail(final Function<RQ, RS> executeFunction, final Function<RQ, RS> recoveryFunction, final RQ request, final String errorMessage) {
-
-        RS response = retryTemplate.execute(
+        return retryTemplate.execute(
                 context -> {
                     LOGGER.info(String.format("Executing attempt %d", context.getRetryCount() + 1));
                     return executeFunction.apply(request);
@@ -77,6 +73,5 @@ public class RetryOperator<RQ, RS> {
                     return recoveryFunction.apply(request);
                 }
         );
-        return response;
     }
 }
