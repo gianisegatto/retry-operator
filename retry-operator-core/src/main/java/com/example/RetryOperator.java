@@ -22,10 +22,10 @@ public class RetryOperator<RQ, RS> {
 
          this.retryTemplate = new RetryTemplate();
 
-        Map<Class<? extends Throwable>, Boolean> execeptionMap = new HashMap();
-        Stream.of(exceptions).forEach(exception -> execeptionMap.put(exception, true));
+        Map<Class<? extends Throwable>, Boolean> exceptionMap = Stream.of(exceptions)
+                .collect(Collectors.toMap(exception -> exception, exception -> true));
 
-        SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy(maxAttempts, execeptionMap);
+        SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy(maxAttempts, exceptionMap);
         retryTemplate.setRetryPolicy(retryPolicy);
 
         FixedBackOffPolicy fixedBackOffPolicy = new FixedBackOffPolicy();

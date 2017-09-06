@@ -18,31 +18,33 @@ public class RetryOperatorTest {
 
         this.count = 0;
 
-        this.retryOperator = new RetryOperator(3, 0, RuntimeException.class, RuntimeException.class);
+        int[] x = new int[] {1, 2, 3};
+
+        this.retryOperator = new RetryOperator<>(3, 0, RuntimeException.class);
     }
 
     @Test(expected = RuntimeException.class)
     public void shouldRetryThreeTimesAndThrowRuntimeException() {
         int request = 0;
-        retryOperator.executeAndRetryIfFail(request1 -> throwExternalSupplierException(request1), request);
+        retryOperator.executeAndRetryIfFail(this::throwExternalSupplierException, request);
     }
 
     @Test
-    public void shouldRetryTwoTimesAndSuceesExecution() {
+    public void shouldRetryTwoTimesAndSuccessExecution() {
 
         int request = 100;
-        Integer response = retryOperator.executeAndRetryIfFail(request1 -> retryTwoTimes(request1), request);
+        Integer response = retryOperator.executeAndRetryIfFail(this::retryTwoTimes, request);
 
         assertThat(response, is(request));
         assertThat(count, is(2));
     }
 
     @Test(expected = RuntimeException.class)
-    public void shouldRetryOneTimeAndStopExecutionBasedOnErrorMeessage() {
+    public void shouldRetryOneTimeAndStopExecutionBasedOnErrorMessage() {
         int request = 100;
         try {
 
-            retryOperator.executeAndRetryIfFail(request1 -> retryByMessage(request1), request, RuntimeException.class, "Keep going");
+            retryOperator.executeAndRetryIfFail(this::retryByMessage, request, RuntimeException.class, "Keep going");
 
         } catch (RuntimeException e) {
             assertThat(count, is(1));
@@ -54,7 +56,7 @@ public class RetryOperatorTest {
     public void shouldRetryThreeTimesAndExecuteRecover() {
 
         int request = 5;
-        Integer response = retryOperator.executeAndRetryIfFail(request1 -> throwExternalSupplierException(request1), request1 -> request1 * 10, request, "Error after three attempts.");
+        Integer response = retryOperator.executeAndRetryIfFail(this::throwExternalSupplierException, request1 -> request1 * 10, request, "Error after three attempts.");
 
         assertThat(response, is(50));
         assertThat(count, is(3));
